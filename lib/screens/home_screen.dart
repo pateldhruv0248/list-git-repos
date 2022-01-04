@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } on SocketException catch (_) {
       debugPrint('not connected');
       //Get data from Hive
+
     }
   }
 
@@ -73,16 +74,17 @@ class _HomeScreenState extends State<HomeScreen> {
           "per_page=15";
       debugPrint(url);
       final response = await dio.get(url);
-      List tList = [];
+      List newList = [];
       for (int i = 0; i < response.data.length; i++) {
-        tList.add(response.data[i]);
+        newList.add(response.data[i]);
       }
 
       //Store to Hive
 
+
       setState(() {
         isLoading = false;
-        users.addAll(tList);
+        users.addAll(newList);
         page++;
       });
     }
