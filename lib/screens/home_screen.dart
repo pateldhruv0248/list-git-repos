@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: LazyLoadScrollView(
           onEndOfPage: () => _getMoreData(page),
-          scrollOffset: 300,
+          scrollOffset: 100,
           child: ListView.builder(
             itemCount: users.length + 1,
             itemBuilder: (BuildContext context, int index) {
