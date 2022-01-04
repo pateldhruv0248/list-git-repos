@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
@@ -16,10 +18,23 @@ class _HomeScreenState extends State<HomeScreen> {
   final dio = Dio();
   bool flag = false;
 
+  void checkConnectivity() async{
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        debugPrint('connected');
+        _getMoreData(page);
+      }
+    } on SocketException catch (_) {
+      debugPrint('not connected');
+      //Get data from Hive
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _getMoreData(page);
+    checkConnectivity();
   }
 
   @override
@@ -53,8 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         isLoading = true;
       });
-      String url =
-          "https://api.github.com/users/JakeWharton/repos?page=" + index.toString() + "per_page=15";
+      String url = "https://api.github.com/users/JakeWharton/repos?page=" +
+          index.toString() +
+          "per_page=15";
       debugPrint(url);
       final response = await dio.get(url);
       List tList = [];
