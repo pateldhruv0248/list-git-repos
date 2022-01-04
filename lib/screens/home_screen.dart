@@ -1,0 +1,86 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  static int page = 0;
+  bool isLoading = false;
+  List users = [];
+  final dio = Dio();
+  bool flag = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getMoreData(page);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: LazyLoadScrollView(
+          onEndOfPage: () => _getMoreData(page),
+          scrollOffset: 300,
+          child: ListView.builder(
+            itemCount: users.length + 1,
+            itemBuilder: (BuildContext context, int index) {
+              if (index == users.length) {
+                return _buildProgressIndicator();
+              } else {
+                return ListTile(
+                  leading: const Icon(Icons.book),
+                  title: Text((users[index]['name'] ?? '')),
+                  subtitle: Text((users[index]['description'] ?? '')),
+                );
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _getMoreData(int index) async {
+    if (!isLoading) {
+      setState(() {
+        isLoading = true;
+      });
+      String url =
+          "https://api.github.com/users/JakeWharton/repos?page=" + index.toString() + "per_page=15";
+      debugPrint(url);
+      final response = await dio.get(url);
+      List tList = [];
+      for (int i = 0; i < response.data.length; i++) {
+        tList.add(response.data[i]);
+      }
+
+      //Store to Hive
+
+      setState(() {
+        isLoading = false;
+        users.addAll(tList);
+        page++;
+      });
+    }
+  }
+
+  Widget _buildProgressIndicator() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: Opacity(
+          opacity: isLoading ? 1.0 : 00,
+          child: const CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+}
