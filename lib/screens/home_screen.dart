@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final dio = Dio();
   bool flag = false;
 
-  void checkConnectivity() async{
+  void checkConnectivity() async {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -79,8 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
         newList.add(response.data[i]);
       }
 
-      //Store to Hive
-
+      var box = await Hive.openBox('settings');
+      for (int i = 0; i < response.data.length; i++) {
+        box.put(response.data[i]["id"] , response.data[i]);
+      }
 
       setState(() {
         isLoading = false;
