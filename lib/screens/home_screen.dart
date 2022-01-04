@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:list_github_repos/Hive/hive_db.dart';
 
@@ -19,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List users = [];
   final dio = Dio();
   bool flag = false;
+  late bool internetIsAvailable;
 
   HiveDB hiveDB = HiveDB();
 
@@ -27,12 +27,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         debugPrint('connected');
+        internetIsAvailable = true;
         _getMoreData(page);
       }
     } on SocketException catch (_) {
       debugPrint('not connected');
-      //Get data from Hive
-      
+      internetIsAvailable = false;
+      // Get data from Hive
+      setState(() {
+        users = hiveDB.getLocalData().values.toList();
+      });
     }
   }
 
@@ -43,11 +47,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    hiveDB.closeBox();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: LazyLoadScrollView(
-          onEndOfPage: () => _getMoreData(page),
+          //In offline mode, we can not call extra function.
+          onEndOfPage: () => internetIsAvailable ? _getMoreData(page) : '',
           scrollOffset: 100,
           child: ListView.builder(
             itemCount: users.length + 1,
@@ -82,10 +93,9 @@ class _HomeScreenState extends State<HomeScreen> {
       for (int i = 0; i < response.data.length; i++) {
         newList.add(response.data[i]);
       }
-      
+
       //Store on HiveDB
       hiveDB.storeResponseLocally(response);
-      
 
       setState(() {
         isLoading = false;

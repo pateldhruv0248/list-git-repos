@@ -11,5 +11,11 @@ class HiveDB {
       } 
   }
 
-  
+   Map getLocalData(){
+     Map map = box.toMap();
+     return map;
+  }
+  closeBox(){
+    box.clear();
+  }
 }
