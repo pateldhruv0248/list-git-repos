@@ -5,6 +5,7 @@ import 'package:list_github_repos/screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter('Github Repos');
+  await Hive.openBox('settings');
   runApp(const MyApp());
 }
 

@@ -1,0 +1,15 @@
+import 'package:dio/dio.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+class HiveDB {
+  
+  final box = Hive.box('settings');
+
+  void storeResponseLocally(Response response) {
+    for (int i = 0; i < response.data.length; i++) {
+        box.put(response.data[i]["id"] , response.data[i]);
+      } 
+  }
+
+  
+}

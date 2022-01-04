@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
+import 'package:list_github_repos/Hive/hive_db.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -19,6 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final dio = Dio();
   bool flag = false;
 
+  HiveDB hiveDB = HiveDB();
+
   void checkConnectivity() async {
     try {
       final result = await InternetAddress.lookup('example.com');
@@ -29,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } on SocketException catch (_) {
       debugPrint('not connected');
       //Get data from Hive
-
+      
     }
   }
 
@@ -79,11 +82,10 @@ class _HomeScreenState extends State<HomeScreen> {
       for (int i = 0; i < response.data.length; i++) {
         newList.add(response.data[i]);
       }
-
-      var box = await Hive.openBox('settings');
-      for (int i = 0; i < response.data.length; i++) {
-        box.put(response.data[i]["id"] , response.data[i]);
-      }
+      
+      //Store on HiveDB
+      hiveDB.storeResponseLocally(response);
+      
 
       setState(() {
         isLoading = false;
