@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:list_github_repos/Hive/hive_db.dart';
-import 'package:local_auth/local_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -26,40 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
   //it will become false.
   bool internetIsAvailable = true;
 
-  //Intialised by false, and wait untill authorisation.
-  //After authorisation is successful, make it true.
-  bool authenticated = false;
-
   HiveDB hiveDB = HiveDB();
-  final LocalAuthentication _localAuthentication = LocalAuthentication();
-
-  //Check if device contains biometric authorisation.
-  void checkingForBioMetrics() async {
-    bool canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
-    if (canCheckBiometrics) {
-      await _authenticateMe();
-    }
-  }
-
-  //Wait for users authorisation.
-  Future<bool> _authenticateMe() async {
-    try {
-      authenticated = await _localAuthentication.authenticate(
-        biometricOnly: true,
-        localizedReason: "Fingerprint authentication",
-        useErrorDialogs: true,
-        stickyAuth: true,
-      );
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-    if (!mounted) {
-      return authenticated;
-    } else {
-      return !authenticated;
-    }
-  }
-
+  
   //Check internet connection.
   void _checkConnectivity() async {
     try {
@@ -82,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    checkingForBioMetrics();
     _checkConnectivity();
   }
 
@@ -94,19 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //If user do not has access, Show blank page 
-    //with message of unauthorisation.
-    if (!authenticated) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Jake\'s Git'),
-        ),
-        body: const Center(
-          child: Text('You are unauthorized!'),
-        ),
-      );
-    }
-    //If user is authorised, Show the working module of app.
     return Scaffold(
       appBar: AppBar(
         title: const Text('Jake\'s Git'),
