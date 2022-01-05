@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List users = [];
   final dio = Dio();
   bool flag = false;
-  late bool internetIsAvailable;
+  bool internetIsAvailable = true;
 
   HiveDB hiveDB = HiveDB();
 
