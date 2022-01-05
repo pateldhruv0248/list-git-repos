@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static int page = 0;
+  static int page = 1;
   bool isLoading = false;
   List users = [];
   final dio = Dio();
@@ -22,13 +22,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   HiveDB hiveDB = HiveDB();
 
-  void checkConnectivity() async {
+  void _checkConnectivity() async {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         debugPrint('connected');
         internetIsAvailable = true;
-        _getMoreData(page);
+        _getMoreData();
       }
     } on SocketException catch (_) {
       debugPrint('not connected');
@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    checkConnectivity();
+    _checkConnectivity();
   }
 
   @override
@@ -55,11 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Jake\'s Git'),
+      ),
       body: SafeArea(
         child: LazyLoadScrollView(
           //In offline mode, we can not call extra function.
-          onEndOfPage: () => internetIsAvailable ? _getMoreData(page) : '',
-          scrollOffset: 100,
+          onEndOfPage: () => internetIsAvailable ? _getMoreData() : '',
+          scrollOffset: 300,
           child: ListView.builder(
             itemCount: users.length + 1,
             itemBuilder: (BuildContext context, int index) {
@@ -79,14 +82,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _getMoreData(int index) async {
+  void _getMoreData() async {
     if (!isLoading) {
       setState(() {
         isLoading = true;
       });
-      String url = "https://api.github.com/users/JakeWharton/repos?page=" +
-          index.toString() +
-          "per_page=15";
+      String url =
+          "https://api.github.com/users/JakeWharton/repos?&per_page=15&page=" +
+              page.toString();
       debugPrint(url);
       final response = await dio.get(url);
       List newList = [];
@@ -100,8 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         isLoading = false;
         users.addAll(newList);
-        page++;
       });
+      page++;
     }
   }
 

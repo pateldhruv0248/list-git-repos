@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 class HiveDB {
   
-  final box = Hive.box('settings');
+  final box = Hive.box('git-repos');
 
   void storeResponseLocally(Response response) {
     for (int i = 0; i < response.data.length; i++) {
@@ -15,6 +15,7 @@ class HiveDB {
      Map map = box.toMap();
      return map;
   }
+  
   closeBox(){
     box.clear();
   }
