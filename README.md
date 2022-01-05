@@ -1,16 +1,17 @@
 # list_github_repos
 
-A new Flutter project.
+Lazy load all git repos of Jake Wharton. Store Repos offline with Hive. If user is offline or switches to offline while app is runing, show local data. 
 
-## Getting Started
+## Landing Page
 
-This project is a starting point for a Flutter application.
+User is asked to enter fingerprint check. 
 
-A few resources to get you started if this is your first Flutter project:
+## HomePage
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+User can see lazy loaded listview of all the repos. New data will be asked around 3rd last listing.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Video
+
+https://user-images.githubusercontent.com/48350577/148200744-71d25f32-b9b8-4956-8711-7029137c4062.mp4
+
+Note:- The blank screen denotes fingerprint authentication.
