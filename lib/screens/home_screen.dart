@@ -32,9 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } on SocketException catch (_) {
       debugPrint('not connected');
-      internetIsAvailable = false;
       // Get data from Hive
       setState(() {
+        internetIsAvailable = false;
         users = hiveDB.getLocalData().values.toList();
       });
     }
@@ -59,24 +59,42 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Jake\'s Git'),
       ),
       body: SafeArea(
-        child: LazyLoadScrollView(
-          //In offline mode, we can not call extra function.
-          onEndOfPage: () => internetIsAvailable ? _getMoreData() : '',
-          scrollOffset: 300,
-          child: ListView.builder(
-            itemCount: users.length + 1,
-            itemBuilder: (BuildContext context, int index) {
-              if (index == users.length) {
-                return _buildProgressIndicator();
-              } else {
-                return ListTile(
-                  leading: const Icon(Icons.book),
-                  title: Text((users[index]['name'] ?? '')),
-                  subtitle: Text((users[index]['description'] ?? '')),
-                );
-              }
-            },
-          ),
+        child: Column(
+          children: [
+            Expanded(
+              child: LazyLoadScrollView(
+                //In offline mode, we can not call extra function.
+                onEndOfPage: () => internetIsAvailable ? _getMoreData() : '',
+                scrollOffset: 300,
+                child: ListView.builder(
+                  itemCount: users.length + 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (index == users.length) {
+                      return _buildProgressIndicator();
+                    } else {
+                      return ListTile(
+                        leading: const Icon(Icons.book),
+                        title: Text((users[index]['name'] ?? '')),
+                        subtitle: Text((users[index]['description'] ?? '')),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+            if (!internetIsAvailable)
+              Container(
+                color: Colors.black54,
+                width: MediaQuery.of(context).size.width * 100,
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'You are offline or something went wrong. Showing local data',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              )
+          ],
         ),
       ),
     );
@@ -87,24 +105,29 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         isLoading = true;
       });
-      String url =
-          "https://api.github.com/users/JakeWharton/repos?&per_page=15&page=" +
-              page.toString();
-      debugPrint(url);
-      final response = await dio.get(url);
-      List newList = [];
-      for (int i = 0; i < response.data.length; i++) {
-        newList.add(response.data[i]);
+      try {
+        String url =
+            "https://api.github.com/users/JakeWharton/repos?&per_page=15&page=" +
+                page.toString();
+        debugPrint(url);
+        final response = await dio.get(url);
+        List newList = [];
+        for (int i = 0; i < response.data.length; i++) {
+          newList.add(response.data[i]);
+        }
+        //Store on HiveDB
+        hiveDB.storeResponseLocally(response);
+        setState(() {
+          isLoading = false;
+          users.addAll(newList);
+        });
+        page++;
+      } catch (e) {
+        setState(() {
+          internetIsAvailable = false;
+          isLoading = false;
+        });
       }
-
-      //Store on HiveDB
-      hiveDB.storeResponseLocally(response);
-
-      setState(() {
-        isLoading = false;
-        users.addAll(newList);
-      });
-      page++;
     }
   }
 
