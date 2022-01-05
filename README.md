@@ -1,6 +1,6 @@
 # list_github_repos
 
-Lazy load all git repos of Jake Wharton. Store Repos offline with Hive. If user is offline or switches to offline while app is runing, show local data. 
+Lazy load all git repos of Jake Wharton. Store Repos offline with Hive. If user is offline or switches to offline mode while the app is runing, show the local data. 
 
 ## Landing Page
 
