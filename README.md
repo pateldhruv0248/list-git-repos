@@ -2,6 +2,8 @@
 
 Lazy load all git repos of Jake Wharton. Store Repos offline with Hive. If user is offline or switches to offline mode while the app is runing, show the local data. 
 
+### You can find apk [here](https://github.com/pateldhruv0248/list-git-repos/releases/tag/v0.1).
+
 ## Landing Page
 
 User is asked to enter fingerprint check. 
